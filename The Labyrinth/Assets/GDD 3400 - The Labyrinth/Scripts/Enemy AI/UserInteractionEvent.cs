@@ -45,6 +45,8 @@ namespace GDD3400.Labyrinth
             {
                 Vector3 targetLocation = hit.point;
 
+                print(targetLocation);
+
                 // Draw debug circle at target location
                 if (showDebugCircle)
                 {

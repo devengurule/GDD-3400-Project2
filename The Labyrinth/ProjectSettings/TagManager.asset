@@ -10,6 +10,11 @@ TagManager:
   - Threat
   - Collectables
   - SafeZone
+  - Front
+  - Left
+  - Right
+  - Pheromone
+  - Wall
   layers:
   - Default
   - TransparentFX

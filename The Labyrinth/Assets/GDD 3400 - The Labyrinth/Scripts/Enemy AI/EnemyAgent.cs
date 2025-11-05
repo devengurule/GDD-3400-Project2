@@ -418,14 +418,6 @@ namespace GDD3400.Labyrinth
         {
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + turnRate, 0);
         }
-        private void Stop()
-        {
-            if (currentSpeed >= 0)
-            {
-                Reverse();
-            }
-            else velocity = Vector3.zero;
-        }
 
         #endregion
 

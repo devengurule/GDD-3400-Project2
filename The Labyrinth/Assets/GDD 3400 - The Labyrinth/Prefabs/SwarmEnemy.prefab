@@ -38,7 +38,7 @@ Transform:
   - {fileID: 8503094296981377603}
   - {fileID: 3820619514141974}
   - {fileID: 9137380895761974300}
-  - {fileID: 7660388952124183248}
+  - {fileID: 1226230677515094052}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &644066856142269384
@@ -50,8 +50,8 @@ Rigidbody:
   m_GameObject: {fileID: 211964922470011061}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Drag: 0.1
+  m_AngularDrag: 0.1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -83,6 +83,7 @@ MonoBehaviour:
   _levelManager: {fileID: 0}
   turnRate: 10
   maxSpeed: 5
+  acceleration: 0.1
   stoppingDistance: 1.5
   leavingPathDistance: 2
   minimumPathDistance: 6
@@ -303,40 +304,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0.0000009536741, y: 0, z: 0.00000023841852}
---- !u!1 &2241899272526051267
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7660388952124183248}
-  m_Layer: 0
-  m_Name: Colliders
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7660388952124183248
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241899272526051267}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3381620615667570859}
-  - {fileID: 2980853747974295197}
-  - {fileID: 6963883487192766342}
-  m_Father: {fileID: 5519659025601674867}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2618976800427666176
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,11 +439,11 @@ Transform:
   m_GameObject: {fileID: 3605527797236464742}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.15, z: 1.224}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 3.405886, y: 2.4432974, z: 1.5675213}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7660388952124183248}
+  m_Father: {fileID: 1226230677515094052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &3282500012643541964
 SphereCollider:
@@ -493,7 +460,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -511,6 +478,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181f1e3ceedb7814cbe4679eb5b24927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerPColliding: 0
+  IntriguePColliding: 0
+  ExcitedPColliding: 0
+  PlayerColliding: 0
+  WallColliding: 0
 --- !u!1 &4074913996753623041
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +604,40 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &5009812239737393829
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1226230677515094052}
+  m_Layer: 0
+  m_Name: Colliders
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1226230677515094052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5009812239737393829}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6.811772, y: -5.036595, z: -1.9110426}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3381620615667570859}
+  - {fileID: 2980853747974295197}
+  - {fileID: 6963883487192766342}
+  m_Father: {fileID: 5519659025601674867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5811646054021506714
 GameObject:
   m_ObjectHideFlags: 0
@@ -983,11 +989,11 @@ Transform:
   m_GameObject: {fileID: 6427106216791681100}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.742, y: -0.15, z: 0.84799993}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 3.776886, y: 2.4432974, z: 1.3795213}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7660388952124183248}
+  m_Father: {fileID: 1226230677515094052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &8352182393903578971
 SphereCollider:
@@ -1004,7 +1010,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1022,6 +1028,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181f1e3ceedb7814cbe4679eb5b24927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerPColliding: 0
+  IntriguePColliding: 0
+  ExcitedPColliding: 0
+  PlayerColliding: 0
+  WallColliding: 0
 --- !u!1 &9184224918788514966
 GameObject:
   m_ObjectHideFlags: 0
@@ -1049,11 +1060,11 @@ Transform:
   m_GameObject: {fileID: 9184224918788514966}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.742, y: -0.15, z: 0.84799993}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 3.034886, y: 2.4432974, z: 1.3795213}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7660388952124183248}
+  m_Father: {fileID: 1226230677515094052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &2275916798671172533
 SphereCollider:
@@ -1070,7 +1081,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1088,3 +1099,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181f1e3ceedb7814cbe4679eb5b24927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerPColliding: 0
+  IntriguePColliding: 0
+  ExcitedPColliding: 0
+  PlayerColliding: 0
+  WallColliding: 0

@@ -20,24 +20,45 @@ namespace GDD3400.Labyrinth
         }
         [SerializeField] private float turnRate = 10f;
         [SerializeField] private float maxSpeed = 5f;
+        [SerializeField] private float acceleration = 0.1f;
         [SerializeField] private float stoppingDistance = 1.5f;
+        [SerializeField] private float stoppingTime = 0.1f;
         [Tooltip("The distance to the destination before we start leaving the path")]
         [SerializeField] private float leavingPathDistance = 2f; // This should not be less than 1
         [Tooltip("The minimum distance to the destination before we start using the pathfinder")]
         [SerializeField] private float minimumPathDistance = 6f;
+        
+        
         [SerializeField] private GameObject pheromonePrefab;
 
-        private Vector3 velocity;
+
+        private Vector3 velocity = Vector3.zero;
         private Vector3 floatingTarget;
         private Vector3 destinationTarget;
         List<PathNode> path;
         private Rigidbody rb;
         private LayerMask wallLayer;
         private bool DEBUG_SHOW_PATH = true;
-        Transform[] childObjects;
-        
+        private Transform[] childObjects;
+
+        private bool playerPColliding = false;
+        private bool intriguePColliding = false;
+        private bool excitedPColliding = false;
+        private bool playerColliding = false;
+        private bool wallColliding = false;
+
+        private ColliderHandler FrontCollider;
+        private ColliderHandler LeftCollider;
+        private ColliderHandler RightCollider;
+        private Vector3 target;
+        private float currentSpeed;
 
         #endregion
+
+        public void SetTarget(Vector3 newTarget)
+        {
+            target = newTarget;
+        }
 
         #region Unity Methods
         public void Awake()
@@ -51,7 +72,28 @@ namespace GDD3400.Labyrinth
 
         public void Start()
         {
+            
+
             childObjects = GetComponentsInChildren<Transform>();
+
+            // Get colliders and store them for use later
+            foreach (Transform child in childObjects)
+            {
+                if (child.gameObject.tag == "Front")
+                {
+                    FrontCollider = child.gameObject.GetComponent<ColliderHandler>();
+                }
+                else if (child.gameObject.tag == "Left")
+                {
+                    LeftCollider = child.gameObject.GetComponent<ColliderHandler>();
+                }
+                else if (child.gameObject.tag == "Right")
+                {
+                    RightCollider = child.gameObject.GetComponent<ColliderHandler>();
+                }
+            }
+
+
 
             // If we didn't manually set the level manager, find it
             if (_levelManager == null) _levelManager = FindAnyObjectByType<LevelManager>();
@@ -60,16 +102,10 @@ namespace GDD3400.Labyrinth
             if (_levelManager == null) Debug.LogError("Unable To Find Level Manager");
         }
 
-        public void Update()
+        public void FixedUpdate()
         {
-            // Loops through all child objects
-            foreach (Transform childObject in childObjects)
-            {
-
-            }
-
             if (!isActive) return;
-
+            Perception();
             DecisionMaking();
         }
 
@@ -196,31 +232,139 @@ namespace GDD3400.Labyrinth
         #region Decision Making
         private void DecisionMaking()
         {
-            
+            if(playerPColliding || intriguePColliding || excitedPColliding)
+            {
+                // Colliding with a pheromone
+            }
+            else if (playerColliding)
+            {
+                // Colliding with player
+            }
+            else if (wallColliding)
+            {
+                // Colliding with wall
+                Debug.Log("Colliding");
+
+                if (FrontCollider.WallColliding)
+                {
+                    // Colliding in front
+                    Debug.Log("Colliding In Front");
+                    Reverse();
+                }
+                else if (LeftCollider.WallColliding)
+                {
+                    // Colliding to left
+                }
+                else if (RightCollider.WallColliding)
+                {
+                    // Colliding to right
+                }
+                else if(FrontCollider.WallColliding && LeftCollider.WallColliding)
+                {
+                    // Colliding to front and left
+                }
+                else if(FrontCollider.WallColliding || RightCollider.WallColliding)
+                {
+                    // Colliding to front and right
+                }
+
+            }
+            else
+            {
+                Forward();
+            }
+            Move();
         }
 
         #endregion
 
         #region Perception
 
-        public void PheromoneCollisionHandler(GameObject child, Collision collidedObject)
+        private void Perception()
         {
-            
-        }
-        public void PlayerCollisionHandler(GameObject child, Collision collidedObject)
-        {
-            
-        }
-        public void WallCollisionHandler(GameObject child, Collision collidedObject)
-        {
+            if (FrontCollider.PlayerColliding || RightCollider.PlayerColliding || LeftCollider.PlayerColliding)
+            {
+                // Colliding With Player Takes First Priority
+                playerPColliding = false;
+                intriguePColliding = false;
+                excitedPColliding = false;
+                playerColliding = true;
+                wallColliding = false;
+                return;
+            }
+            else if (FrontCollider.PlayerPColliding || RightCollider.PlayerPColliding || LeftCollider.PlayerPColliding || FrontCollider.IntriguePColliding || RightCollider.IntriguePColliding || LeftCollider.IntriguePColliding || FrontCollider.ExcitedPColliding || RightCollider.ExcitedPColliding || LeftCollider.ExcitedPColliding)
+            {
+                // Colliding with Pheromone Takes Second Priority
+                if(FrontCollider.PlayerPColliding || RightCollider.PlayerPColliding || LeftCollider.PlayerPColliding)
+                {
+                    playerPColliding = true;
+                    intriguePColliding = false;
+                    excitedPColliding = false;
+                    playerColliding = false;
+                    wallColliding = false;
+                }
+                else if (FrontCollider.IntriguePColliding || RightCollider.IntriguePColliding || LeftCollider.IntriguePColliding)
+                {
+                    playerPColliding = false;
+                    intriguePColliding = true;
+                    excitedPColliding = false;
+                    playerColliding = false;
+                    wallColliding = false;
+                }
+                else if (FrontCollider.ExcitedPColliding || RightCollider.ExcitedPColliding || LeftCollider.ExcitedPColliding)
+                {
+                    playerPColliding = false;
+                    intriguePColliding = false;
+                    excitedPColliding = true;
+                    playerColliding = false;
+                    wallColliding = false;
+                }
+                return;
+            }
+            else if(FrontCollider.WallColliding || RightCollider.WallColliding || LeftCollider.WallColliding)
+            {
+                // Colliding with Wall Takes Last Priority
+                playerPColliding = false;
+                intriguePColliding = false;
+                excitedPColliding = false;
+                playerColliding = false;
+                wallColliding = true;
+            }
+            else
+            {
+                playerPColliding = false;
+                intriguePColliding = false;
+                excitedPColliding = false;
+                playerColliding = false;
+                wallColliding = false;
+            }
             
         }
 
         #endregion
 
         #region Actions
+        private void Move()
+        {
+            rb.linearVelocity = velocity;
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
+            Debug.Log(velocity.magnitude);
+        }
 
+        private void Forward()
+        {
+            currentSpeed += acceleration;
+            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
+            velocity = transform.forward * currentSpeed;
+        }
+
+        private void Reverse()
+        {
+            currentSpeed -= acceleration;
+            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
+            velocity = transform.forward * currentSpeed;
+        }
 
         #endregion
 

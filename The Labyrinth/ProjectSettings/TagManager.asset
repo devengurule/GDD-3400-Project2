@@ -13,8 +13,8 @@ TagManager:
   - Front
   - Left
   - Right
-  - Pheromone
   - Wall
+  - IntrigueP
   layers:
   - Default
   - TransparentFX

@@ -3,19 +3,85 @@ using UnityEngine;
 
 public class ColliderHandler : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision other)
+    public bool PlayerPColliding = false;
+    public bool IntriguePColliding = false;
+    public bool ExcitedPColliding = false;
+    public bool PlayerColliding = false;
+    public bool WallColliding = false;
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Pheromone")
+        if (other.gameObject.tag == "PlayerP")
         {
-            GetComponentInParent<EnemyAgent>().PheromoneCollisionHandler(this.gameObject, other);
+            PlayerPColliding = true;
+            IntriguePColliding = false;
+            ExcitedPColliding = false;
+            PlayerColliding = false;
+            WallColliding = false;
+        }
+        else if (other.gameObject.tag == "IntrigueP")
+        {
+            PlayerPColliding = false;
+            IntriguePColliding = true;
+            ExcitedPColliding = false;
+            PlayerColliding = false;
+            WallColliding = false;
+        }
+        else if (other.gameObject.tag == "ExcitedP")
+        {
+            PlayerPColliding = false;
+            IntriguePColliding = false;
+            ExcitedPColliding = true;
+            PlayerColliding = false;
+            WallColliding = false;
         }
         else if (other.gameObject.tag == "Player")
         {
-            GetComponentInParent<EnemyAgent>().PlayerCollisionHandler(this.gameObject, other);
+            PlayerPColliding = false;
+            IntriguePColliding = false;
+            ExcitedPColliding = false;
+            PlayerColliding = true;
+            WallColliding = false;
         }
-        else if(other.gameObject.tag == "Wall")
+        else if (other.gameObject.layer == 9)
         {
-            GetComponentInParent<EnemyAgent>().WallCollisionHandler(this.gameObject, other);
+            PlayerPColliding = false;
+            IntriguePColliding = false;
+            ExcitedPColliding = false;
+            PlayerColliding = false;
+            WallColliding = true;
+        }
+        else
+        {
+            PlayerPColliding = false;
+            IntriguePColliding = false;
+            ExcitedPColliding = false;
+            PlayerColliding = false;
+            WallColliding = false;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "PlayerP")
+        {
+            PlayerPColliding = false;
+        }
+        else if (other.gameObject.tag == "IntrigueP")
+        {
+            IntriguePColliding = false;
+        }
+        else if (other.gameObject.tag == "ExcitedP")
+        {
+            ExcitedPColliding = false;
+        }
+        else if (other.gameObject.tag == "Player")
+        {
+            PlayerColliding = false;
+        }
+        else if (other.gameObject.layer == 9)
+        {
+            WallColliding = false;
         }
     }
 }

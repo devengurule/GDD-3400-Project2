@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6128902114793032183}
   m_Layer: 0
   m_Name: PheromoneOrb
-  m_TagString: Pheromone
+  m_TagString: IntrigueP
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

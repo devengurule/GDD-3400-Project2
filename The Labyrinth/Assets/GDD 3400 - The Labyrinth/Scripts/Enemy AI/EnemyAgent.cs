@@ -52,6 +52,10 @@ namespace GDD3400.Labyrinth
         private ColliderHandler RightCollider;
         private Vector3 target;
         private float currentSpeed;
+        private bool turningRight;
+        private bool turningLeft;
+        [SerializeField] private float turningTime;
+        private float timeCounter = 0;
 
         #endregion
 
@@ -232,7 +236,7 @@ namespace GDD3400.Labyrinth
         #region Decision Making
         private void DecisionMaking()
         {
-            if(playerPColliding || intriguePColliding || excitedPColliding)
+            if (playerPColliding || intriguePColliding || excitedPColliding)
             {
                 // Colliding with a pheromone
             }
@@ -240,40 +244,74 @@ namespace GDD3400.Labyrinth
             {
                 // Colliding with player
             }
-            else if (wallColliding)
+            else if (wallColliding || turningLeft || turningRight)
             {
                 // Colliding with wall
-                Debug.Log("Colliding");
 
-                if (FrontCollider.WallColliding)
+                if (FrontCollider.WallColliding && !LeftCollider.WallColliding && !RightCollider.WallColliding)
                 {
                     // Colliding in front
-                    Debug.Log("Colliding In Front");
                     Reverse();
+                    if (Random.Range(1, 2) == 1)
+                    {
+                        TurnLeft();
+                    }
+                    else TurnRight();
                 }
-                else if (LeftCollider.WallColliding)
+                else if (LeftCollider.WallColliding && !FrontCollider.WallColliding && !RightCollider.WallColliding || turningRight)
                 {
                     // Colliding to left
+                    ForwardSlow();
+                    TurnRight();
+                    turningRight = true;
                 }
-                else if (RightCollider.WallColliding)
+                else if (RightCollider.WallColliding && !FrontCollider.WallColliding && !LeftCollider.WallColliding || turningLeft)
                 {
                     // Colliding to right
+                    ForwardSlow();
+                    TurnLeft();
+                    turningLeft = true;
                 }
-                else if(FrontCollider.WallColliding && LeftCollider.WallColliding)
+                else if (FrontCollider.WallColliding && LeftCollider.WallColliding && !RightCollider.WallColliding)
                 {
                     // Colliding to front and left
+                    Reverse();
+                    TurnRight();
                 }
-                else if(FrontCollider.WallColliding || RightCollider.WallColliding)
+                else if (FrontCollider.WallColliding && RightCollider.WallColliding && !LeftCollider.WallColliding)
                 {
                     // Colliding to front and right
+                    Reverse();
+                    TurnLeft();
                 }
-
+                else if(FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || turningLeft || turningRight)
+                {
+                    if (Random.Range(1, 2) == 1)
+                    {
+                        TurnLeft();
+                    }
+                    else TurnRight();
+                }
             }
             else
             {
-                Forward();
+                if (!turningLeft && !turningRight) Forward();
             }
             Move();
+
+            if (turningLeft || turningRight)
+            {
+                if (timeCounter < turningTime)
+                {
+                    timeCounter += Time.deltaTime;
+                }
+                else
+                {
+                    turningLeft = false;
+                    turningRight = false;
+                    timeCounter = 0;
+                }
+            }
         }
 
         #endregion
@@ -348,22 +386,45 @@ namespace GDD3400.Labyrinth
         {
             rb.linearVelocity = velocity;
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-
-            Debug.Log(velocity.magnitude);
         }
 
         private void Forward()
         {
+            if (acceleration < 0) acceleration *= -1;
             currentSpeed += acceleration;
             currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
+            velocity = transform.forward * currentSpeed;
+        }
+        private void ForwardSlow()
+        {
+            currentSpeed += acceleration;
+            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed/2, maxSpeed/2);
             velocity = transform.forward * currentSpeed;
         }
 
         private void Reverse()
         {
-            currentSpeed -= acceleration;
+            currentSpeed -= acceleration * 1.5f;
             currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
             velocity = transform.forward * currentSpeed;
+        }
+
+        private void TurnLeft()
+        {
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - turnRate, 0);
+        }
+
+        private void TurnRight()
+        {
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + turnRate, 0);
+        }
+        private void Stop()
+        {
+            if (currentSpeed >= 0)
+            {
+                Reverse();
+            }
+            else velocity = Vector3.zero;
         }
 
         #endregion

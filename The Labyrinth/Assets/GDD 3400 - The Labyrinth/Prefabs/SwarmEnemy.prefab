@@ -86,6 +86,8 @@ MonoBehaviour:
   maxTurnRate: 10
   swayAmount: 1
   swayTime: 1
+  turningTime: 0
+  reverseTime: 0
   maxSpeed: 5
   acceleration: 0.1
   stoppingDistance: 1.5
@@ -93,8 +95,13 @@ MonoBehaviour:
   leavingPathDistance: 2
   minimumPathDistance: 6
   pheromonePrefab: {fileID: 3325358483448229574, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-  turningTime: 0
-  reverseTime: 0
+  intrigueColor: {r: 0, g: 1, b: 0.31006217, a: 0}
+  excitedColor: {r: 1, g: 0, b: 0.4627451, a: 0}
+  PlayerColor: {r: 0, g: 0.7607843, b: 1, a: 0}
+  intrigueLifeTime: 0
+  excitedLifeTime: 0
+  playerLifeTime: 0
+  spawnCooldown: 0
 --- !u!114 &-3798585894669870502
 MonoBehaviour:
   m_ObjectHideFlags: 0

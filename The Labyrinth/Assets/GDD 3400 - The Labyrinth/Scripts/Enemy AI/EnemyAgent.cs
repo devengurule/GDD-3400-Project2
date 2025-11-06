@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -10,6 +11,7 @@ namespace GDD3400.Labyrinth
     public class EnemyAgent : MonoBehaviour
     {
         #region Variables
+
         [SerializeField] private LevelManager _levelManager;
 
         private bool isActive = true;
@@ -18,11 +20,15 @@ namespace GDD3400.Labyrinth
             get => isActive;
             set => isActive = value;
         }
+        [Header("Turning Settings")]
         [SerializeField] private float turnRate = 1f;
         [SerializeField] private float maxTurnRate = 10f;
         [SerializeField] private float swayAmount = 1f;
         [SerializeField] private float swayTime = 1f;
+        [SerializeField] private float turningTime;
+        [SerializeField] private float reverseTime;
 
+        [Header("Movement Settings")]
         [SerializeField] private float maxSpeed = 5f;
         [SerializeField] private float acceleration = 0.1f;
         [SerializeField] private float stoppingDistance = 1.5f;
@@ -31,10 +37,22 @@ namespace GDD3400.Labyrinth
         [SerializeField] private float leavingPathDistance = 2f; // This should not be less than 1
         [Tooltip("The minimum distance to the destination before we start using the pathfinder")]
         [SerializeField] private float minimumPathDistance = 6f;
-        
-        
-        [SerializeField] private GameObject pheromonePrefab;
 
+        [Header("Pheromon Settings")]
+        [SerializeField] private GameObject pheromonePrefab;
+        [SerializeField] private Color intrigueColor;
+        [SerializeField] private Color excitedColor;
+        [SerializeField] private Color PlayerColor;
+        [SerializeField] private float intrigueLifeTime;
+        [SerializeField] private float excitedLifeTime;
+        [SerializeField] private float playerLifeTime;
+        [SerializeField] private float spawnCooldown;
+        private string intrigueTag = "IntrigueP";
+        private string excitedTag = "ExcitedP";
+        private string playerTag = "PlayerP";
+        private Color currentColor;
+        private float currentLifeTime;
+        private string currentTag;
 
         private Vector3 velocity = Vector3.zero;
         private Vector3 floatingTarget;
@@ -58,12 +76,12 @@ namespace GDD3400.Labyrinth
         private bool turningRight;
         private bool turningLeft;
         private bool reversing;
-        [SerializeField] private float turningTime;
-        [SerializeField] private float reverseTime;
+        
         private float timeCounter = 0f;
         private float currentYAngle = 0f;
         private Timer turningTimer;
         private Timer reverseTimer;
+        private Timer spawningTimer;
 
         #endregion
         
@@ -84,6 +102,7 @@ namespace GDD3400.Labyrinth
 
             turningTimer = gameObject.AddComponent<Timer>();
             reverseTimer = gameObject.AddComponent<Timer>();
+            spawningTimer = gameObject.AddComponent<Timer>();
 
             childObjects = GetComponentsInChildren<Transform>();
 
@@ -118,7 +137,6 @@ namespace GDD3400.Labyrinth
             if (!isActive) return;
             Perception();
             DecisionMaking();
-            //Debug.Log(turningTimer.IsRunning());
         }
 
         #endregion
@@ -247,6 +265,49 @@ namespace GDD3400.Labyrinth
             if (playerPColliding || intriguePColliding || excitedPColliding)
             {
                 // Colliding with a pheromone
+                //if (!spawningTimer.IsRunning())
+                //{
+                //    spawningTimer.Run(spawnCooldown);
+                //    SpawnPheromone(excitedColor, excitedLifeTime, excitedTag);
+                //}
+
+                if (FrontCollider.PlayerPColliding)
+                {
+
+                }
+                else if (LeftCollider.PlayerPColliding)
+                {
+
+                }
+                else if (RightCollider.PlayerPColliding)
+                {
+
+                }
+                else if (FrontCollider.ExcitedPColliding)
+                {
+
+                }
+                else if (LeftCollider.ExcitedPColliding)
+                {
+
+                }
+                else if (RightCollider.ExcitedPColliding)
+                {
+
+                }
+                else if (FrontCollider.IntriguePColliding)
+                {
+
+                }
+                else if (LeftCollider.IntriguePColliding)
+                {
+
+                }
+                else if (RightCollider.IntriguePColliding)
+                {
+
+                }
+
             }
             else if (playerColliding)
             {
@@ -254,8 +315,12 @@ namespace GDD3400.Labyrinth
             }
             else if (wallColliding || turningTimer.IsRunning() || reverseTimer.IsRunning())
             {
-
-                if(FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || reverseTimer.IsRunning())
+                if (!spawningTimer.IsRunning())
+                {
+                    spawningTimer.Run(spawnCooldown);
+                    SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
+                }
+                if (FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || reverseTimer.IsRunning())
                 {
                     // Head into a wall or corner
                     if (Random.Range(0f, 1f) > 0.5f)
@@ -329,6 +394,11 @@ namespace GDD3400.Labyrinth
             {
                 Forward();
                 currentYAngle = 0f;
+                if (!spawningTimer.IsRunning())
+                {
+                    spawningTimer.Run(spawnCooldown);
+                    SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
+                }
             }
             Move();
 
@@ -465,16 +535,19 @@ namespace GDD3400.Labyrinth
 
         private void TurnLeft()
         {
-            Debug.Log("Left");
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - currentYAngle, 0);
         }
 
         private void TurnRight()
         {
-            Debug.Log("Right");
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle, 0);
         }
-        
+
+        private void SpawnPheromone(Color color, float lifeTime, string tag)
+        {
+            GameObject pheromone = Instantiate(pheromonePrefab, transform.position, Quaternion.identity);
+            pheromone.GetComponent<Pheomone>().Initialize(color, lifeTime, tag);
+        }
 
         #endregion
 

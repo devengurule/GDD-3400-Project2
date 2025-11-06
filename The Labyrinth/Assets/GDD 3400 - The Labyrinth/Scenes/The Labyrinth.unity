@@ -7721,9 +7721,61 @@ PrefabInstance:
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: PlayerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: PlayerColor.g
+      value: 0.76155615
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: PlayerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
       propertyPath: _levelManager
       value: 
       objectReference: {fileID: 1086999212}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: spawnCooldown
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: excitedColor.b
+      value: 0.46422625
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: excitedColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: excitedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: playerLifeTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: excitedLifeTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: intrigueColor.b
+      value: 0.14370537
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: intrigueColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: intrigueColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984080164414554517, guid: ff59706a2c395874cbc6ba1cbcdc4197, type: 3}
+      propertyPath: intrigueLifeTime
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11186,63 +11238,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4834609997738129301, guid: e5fff6f2b36b8489a825c62c0b418523, type: 3}
   m_PrefabInstance: {fileID: 1956876015}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1969209374
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -3.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.625
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.68
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2950090976086198359, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3325358483448229574, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
-      propertyPath: m_Name
-      value: PheromoneOrb
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4d35d93fd203eb3469f10fb47d701a71, type: 3}
 --- !u!4 &1970561846 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 832037916033697066, guid: 72b21f59e402c41e9878633886dfd34b, type: 3}
@@ -12429,4 +12424,3 @@ SceneRoots:
   - {fileID: 740574796}
   - {fileID: 1893448488}
   - {fileID: 1268259088}
-  - {fileID: 1969209374}

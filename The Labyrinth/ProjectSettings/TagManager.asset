@@ -26,7 +26,7 @@ TagManager:
   - Obstacles
   - Enemy
   - Walls
-  - 
+  - IgnorePhysics
   - 
   - 
   - 

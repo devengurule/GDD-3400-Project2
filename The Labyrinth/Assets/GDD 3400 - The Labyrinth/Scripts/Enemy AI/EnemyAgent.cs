@@ -18,7 +18,11 @@ namespace GDD3400.Labyrinth
             get => isActive;
             set => isActive = value;
         }
-        [SerializeField] private float turnRate = 10f;
+        [SerializeField] private float turnRate = 1f;
+        [SerializeField] private float maxTurnRate = 10f;
+        [SerializeField] private float swayAmount = 1f;
+        [SerializeField] private float swayTime = 1f;
+
         [SerializeField] private float maxSpeed = 5f;
         [SerializeField] private float acceleration = 0.1f;
         [SerializeField] private float stoppingDistance = 1.5f;
@@ -50,20 +54,19 @@ namespace GDD3400.Labyrinth
         private ColliderHandler FrontCollider;
         private ColliderHandler LeftCollider;
         private ColliderHandler RightCollider;
-        private Vector3 target;
         private float currentSpeed;
         private bool turningRight;
         private bool turningLeft;
+        private bool reversing;
         [SerializeField] private float turningTime;
-        private float timeCounter = 0;
+        [SerializeField] private float reverseTime;
+        private float timeCounter = 0f;
+        private float currentYAngle = 0f;
+        private Timer turningTimer;
+        private Timer reverseTimer;
 
         #endregion
-
-        public void SetTarget(Vector3 newTarget)
-        {
-            target = newTarget;
-        }
-
+        
         #region Unity Methods
         public void Awake()
         {
@@ -76,7 +79,11 @@ namespace GDD3400.Labyrinth
 
         public void Start()
         {
-            
+            transform.rotation = Quaternion.Euler(0, Random.Range(0f,360f), 0);
+
+
+            turningTimer = gameObject.AddComponent<Timer>();
+            reverseTimer = gameObject.AddComponent<Timer>();
 
             childObjects = GetComponentsInChildren<Transform>();
 
@@ -105,12 +112,13 @@ namespace GDD3400.Labyrinth
             // If we still don't have a level manager, throw an error
             if (_levelManager == null) Debug.LogError("Unable To Find Level Manager");
         }
-
+        
         public void FixedUpdate()
         {
             if (!isActive) return;
             Perception();
             DecisionMaking();
+            //Debug.Log(turningTimer.IsRunning());
         }
 
         #endregion
@@ -244,74 +252,112 @@ namespace GDD3400.Labyrinth
             {
                 // Colliding with player
             }
-            else if (wallColliding || turningLeft || turningRight)
+            else if (wallColliding || turningTimer.IsRunning() || reverseTimer.IsRunning())
             {
-                // Colliding with wall
 
-                if (FrontCollider.WallColliding && !LeftCollider.WallColliding && !RightCollider.WallColliding)
+                if(FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || reverseTimer.IsRunning())
                 {
-                    // Colliding in front
-                    Reverse();
-                    if (Random.Range(1, 2) == 1)
+                    // Head into a wall or corner
+                    if (Random.Range(0f, 1f) > 0.5f)
                     {
-                        TurnLeft();
+                        Reverse();
+                        turningRight = true;
+                        turningLeft = false;
+                        if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                     }
-                    else TurnRight();
+                    else
+                    {
+                        Reverse();
+                        turningRight = true;
+                        turningLeft = false;
+                        if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
+                    }
                 }
-                else if (LeftCollider.WallColliding && !FrontCollider.WallColliding && !RightCollider.WallColliding || turningRight)
+                else if(FrontCollider.WallColliding && LeftCollider.WallColliding)
                 {
-                    // Colliding to left
-                    ForwardSlow();
-                    TurnRight();
+                    // Hitting front and left
+                    Reverse();
                     turningRight = true;
+                    turningLeft = false;
+                    if(!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                 }
-                else if (RightCollider.WallColliding && !FrontCollider.WallColliding && !LeftCollider.WallColliding || turningLeft)
+                else if(FrontCollider.WallColliding && RightCollider.WallColliding)
                 {
-                    // Colliding to right
-                    ForwardSlow();
-                    TurnLeft();
-                    turningLeft = true;
-                }
-                else if (FrontCollider.WallColliding && LeftCollider.WallColliding && !RightCollider.WallColliding)
-                {
-                    // Colliding to front and left
+                    // Hitting front and right
                     Reverse();
-                    TurnRight();
+                    turningRight = true;
+                    turningLeft = false;
+                    if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                 }
-                else if (FrontCollider.WallColliding && RightCollider.WallColliding && !LeftCollider.WallColliding)
+                else if (FrontCollider.WallColliding)
                 {
-                    // Colliding to front and right
-                    Reverse();
-                    TurnLeft();
-                }
-                else if(FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || turningLeft || turningRight)
-                {
-                    if (Random.Range(1, 2) == 1)
+                    // Only hitting front
+                    if (!reverseTimer.IsRunning()) reverseTimer.Run(reverseTime);
+                    if (reverseTimer.IsRunning()) ReverseSlow();
+                    if (Random.Range(0f, 1f) > 0.5f)
                     {
+                        turningLeft = true;
+                        turningRight = false;
+                        TurnRight();
+                    }
+                    else
+                    {
+                        turningLeft = false;
+                        turningRight = true;
                         TurnLeft();
                     }
-                    else TurnRight();
                 }
+                else if (LeftCollider.WallColliding || turningLeft)
+                {
+                    // Only hitting left
+                    if (!turningTimer.IsRunning() && !turningLeft) turningTimer.Run(turningTime);
+                    turningRight = false;
+                    turningLeft = true;
+                    ForwardSlow();
+                }
+                else if (RightCollider.WallColliding || turningRight)
+                {
+                    // Only hitting right
+                    if (!turningTimer.IsRunning() && !turningRight) turningTimer.Run(turningTime);
+                    turningLeft = false;
+                    turningRight = true;
+                    ForwardSlow();
+                }
+
             }
             else
             {
-                if (!turningLeft && !turningRight) Forward();
+                Forward();
+                currentYAngle = 0f;
             }
             Move();
 
-            if (turningLeft || turningRight)
+            if (!turningTimer.IsRunning())
             {
-                if (timeCounter < turningTime)
-                {
-                    timeCounter += Time.deltaTime;
-                }
-                else
-                {
-                    turningLeft = false;
-                    turningRight = false;
-                    timeCounter = 0;
-                }
+                turningLeft = false;
+                turningRight = false;
+                currentYAngle = 0f;
             }
+            //Debug.Log(currentYAngle);
+            if (turningLeft && !turningRight)
+            {
+                TurnLeft();
+            }
+            else if (turningRight && !turningLeft)
+            {
+                TurnRight();
+            }
+            Debug.Log(turningTimer.GetTimeLeft());
+            if (turningTimer.GetTimeLeft() > turningTimer.GetDurration() / 2)
+            {
+                // Halfway through timer
+                currentYAngle += turnRate;
+            }
+            else
+            {
+                currentYAngle -= turnRate;
+            }
+            currentYAngle = Mathf.Clamp(currentYAngle, -maxTurnRate, maxTurnRate);
         }
 
         #endregion
@@ -390,7 +436,8 @@ namespace GDD3400.Labyrinth
 
         private void Forward()
         {
-            if (acceleration < 0) acceleration *= -1;
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + (swayAmount * Mathf.Cos(Time.time * swayTime)), 0);
+
             currentSpeed += acceleration;
             currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
             velocity = transform.forward * currentSpeed;
@@ -398,26 +445,36 @@ namespace GDD3400.Labyrinth
         private void ForwardSlow()
         {
             currentSpeed += acceleration;
-            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed/2, maxSpeed/2);
+            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed/3, maxSpeed/3);
             velocity = transform.forward * currentSpeed;
         }
 
         private void Reverse()
         {
-            currentSpeed -= acceleration * 1.5f;
+            currentSpeed -= acceleration * 2;
+            currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
+            velocity = transform.forward * currentSpeed;
+        }
+
+        private void ReverseSlow()
+        {
+            currentSpeed -= acceleration;
             currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
             velocity = transform.forward * currentSpeed;
         }
 
         private void TurnLeft()
         {
-            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - turnRate, 0);
+            Debug.Log("Left");
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - currentYAngle, 0);
         }
 
         private void TurnRight()
         {
-            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + turnRate, 0);
+            Debug.Log("Right");
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle, 0);
         }
+        
 
         #endregion
 

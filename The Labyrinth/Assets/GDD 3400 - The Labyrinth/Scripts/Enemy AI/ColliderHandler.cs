@@ -9,7 +9,7 @@ public class ColliderHandler : MonoBehaviour
     public bool PlayerColliding = false;
     public bool WallColliding = false;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.tag == "PlayerP")
         {

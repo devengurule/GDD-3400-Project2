@@ -23,6 +23,7 @@ namespace GDD3400.Labyrinth
         [Header("Turning Settings")]
         [SerializeField] private float turnRate = 1f;
         [SerializeField] private float maxTurnRate = 10f;
+        [SerializeField] private float sharpMultiplier = 2f;
         [SerializeField] private float swayAmount = 1f;
         [SerializeField] private float swayTime = 1f;
         [SerializeField] private float turningTime;
@@ -42,14 +43,11 @@ namespace GDD3400.Labyrinth
         [SerializeField] private GameObject pheromonePrefab;
         [SerializeField] private Color intrigueColor;
         [SerializeField] private Color excitedColor;
-        [SerializeField] private Color PlayerColor;
         [SerializeField] private float intrigueLifeTime;
         [SerializeField] private float excitedLifeTime;
-        [SerializeField] private float playerLifeTime;
         [SerializeField] private float spawnCooldown;
         private string intrigueTag = "IntrigueP";
         private string excitedTag = "ExcitedP";
-        private string playerTag = "PlayerP";
         private Color currentColor;
         private float currentLifeTime;
         private string currentTag;
@@ -97,7 +95,7 @@ namespace GDD3400.Labyrinth
 
         public void Start()
         {
-            transform.rotation = Quaternion.Euler(0, Random.Range(0f,360f), 0);
+            //transform.rotation = Quaternion.Euler(0, Random.Range(0f,360f), 0);
 
 
             turningTimer = gameObject.AddComponent<Timer>();
@@ -262,64 +260,108 @@ namespace GDD3400.Labyrinth
         #region Decision Making
         private void DecisionMaking()
         {
-            if (playerPColliding || intriguePColliding || excitedPColliding)
-            {
-                // Colliding with a pheromone
-                //if (!spawningTimer.IsRunning())
-                //{
-                //    spawningTimer.Run(spawnCooldown);
-                //    SpawnPheromone(excitedColor, excitedLifeTime, excitedTag);
-                //}
-
-                if (FrontCollider.PlayerPColliding)
-                {
-
-                }
-                else if (LeftCollider.PlayerPColliding)
-                {
-
-                }
-                else if (RightCollider.PlayerPColliding)
-                {
-
-                }
-                else if (FrontCollider.ExcitedPColliding)
-                {
-
-                }
-                else if (LeftCollider.ExcitedPColliding)
-                {
-
-                }
-                else if (RightCollider.ExcitedPColliding)
-                {
-
-                }
-                else if (FrontCollider.IntriguePColliding)
-                {
-
-                }
-                else if (LeftCollider.IntriguePColliding)
-                {
-
-                }
-                else if (RightCollider.IntriguePColliding)
-                {
-
-                }
-
-            }
-            else if (playerColliding)
+            if (playerColliding)
             {
                 // Colliding with player
-            }
-            else if (wallColliding || turningTimer.IsRunning() || reverseTimer.IsRunning())
-            {
+
+
+
+                // Drop excited pheromone
                 if (!spawningTimer.IsRunning())
                 {
                     spawningTimer.Run(spawnCooldown);
-                    SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
+                    SpawnPheromone(excitedColor, excitedLifeTime, excitedTag);
                 }
+            }
+            else if (playerPColliding || intriguePColliding || excitedPColliding)
+            {
+                // Drop intriuge pheromone when hitting player pheromone
+                // Drop excited pheromone when colliding with player
+                // Follow all other pheromones
+                if (playerPColliding)
+                {
+
+                    // Drop intrigue pheromone
+                    if (!spawningTimer.IsRunning())
+                    {
+                        spawningTimer.Run(spawnCooldown);
+                        SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
+                    }
+
+                    if (FrontCollider.PlayerPColliding)
+                    {
+                        Forward();
+                        if (LeftCollider.PlayerPColliding)
+                        {
+                            TurnRightSharp();
+                        }
+                        else if (RightCollider.PlayerPColliding)
+                        {
+                            TurnLeftSharp();
+                        }
+                    }
+                    else if (LeftCollider.PlayerPColliding)
+                    {
+                        Forward();
+                        TurnRightSharp();
+                    }
+                    else if (RightCollider.PlayerPColliding)
+                    {
+                        Forward();
+                        TurnLeftSharp();
+                    }
+                }
+                else if (excitedPColliding) {
+                    if (FrontCollider.ExcitedPColliding)
+                    {
+                        Forward();
+                        if (LeftCollider.ExcitedPColliding)
+                        {
+                            TurnRightSharp();
+                        }
+                        else if (RightCollider.ExcitedPColliding)
+                        {
+                            TurnLeftSharp();
+                        }
+                    }
+                    else if (LeftCollider.ExcitedPColliding)
+                    {
+                        Forward();
+                        TurnRightSharp();
+                    }
+                    else if (RightCollider.ExcitedPColliding)
+                    {
+                        Forward();
+                        TurnLeftSharp();
+                    }
+                }
+                else if (intriguePColliding) {
+                    if (FrontCollider.IntriguePColliding)
+                    {
+                        Forward();
+                        if (LeftCollider.IntriguePColliding)
+                        {
+                            TurnRightSharp();
+                        }
+                        else if (RightCollider.IntriguePColliding)
+                        {
+                            TurnLeftSharp();
+                        }
+                    }
+                    else if (LeftCollider.IntriguePColliding)
+                    {
+                        Forward();
+                        TurnRightSharp();
+                    }
+                    else if (RightCollider.IntriguePColliding)
+                    {
+                        Forward();
+                        TurnLeftSharp();
+                    }
+                }
+            }
+            else if (wallColliding || turningTimer.IsRunning() || reverseTimer.IsRunning())
+            {
                 if (FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || reverseTimer.IsRunning())
                 {
                     // Head into a wall or corner
@@ -394,11 +436,6 @@ namespace GDD3400.Labyrinth
             {
                 Forward();
                 currentYAngle = 0f;
-                if (!spawningTimer.IsRunning())
-                {
-                    spawningTimer.Run(spawnCooldown);
-                    SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
-                }
             }
             Move();
 
@@ -417,7 +454,6 @@ namespace GDD3400.Labyrinth
             {
                 TurnRight();
             }
-            Debug.Log(turningTimer.GetTimeLeft());
             if (turningTimer.GetTimeLeft() > turningTimer.GetDurration() / 2)
             {
                 // Halfway through timer
@@ -541,6 +577,15 @@ namespace GDD3400.Labyrinth
         private void TurnRight()
         {
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle, 0);
+        }
+
+        private void TurnLeftSharp()
+        {
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - currentYAngle * sharpMultiplier, 0);
+        }
+        private void TurnRightSharp()
+        {
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle * sharpMultiplier, 0);
         }
 
         private void SpawnPheromone(Color color, float lifeTime, string tag)

@@ -48,17 +48,9 @@ namespace GDD3400.Labyrinth
         [SerializeField] private float spawnCooldown;
         private string intrigueTag = "IntrigueP";
         private string excitedTag = "ExcitedP";
-        private Color currentColor;
-        private float currentLifeTime;
-        private string currentTag;
 
         private Vector3 velocity = Vector3.zero;
-        private Vector3 floatingTarget;
-        private Vector3 destinationTarget;
-        List<PathNode> path;
         private Rigidbody rb;
-        private LayerMask wallLayer;
-        private bool DEBUG_SHOW_PATH = true;
         private Transform[] childObjects;
 
         private bool playerPColliding = false;
@@ -73,7 +65,6 @@ namespace GDD3400.Labyrinth
         private float currentSpeed;
         private bool turningRight;
         private bool turningLeft;
-        private bool reversing;
         
         private float timeCounter = 0f;
         private float currentYAngle = 0f;
@@ -84,25 +75,16 @@ namespace GDD3400.Labyrinth
         #endregion
         
         #region Unity Methods
-        public void Awake()
-        {
-            // Grab and store the rigidbody component
-            rb = GetComponent<Rigidbody>();
-
-            // Grab and store the wall layer
-            wallLayer = LayerMask.GetMask("Walls");
-        }
-
         public void Start()
         {
-            //transform.rotation = Quaternion.Euler(0, Random.Range(0f,360f), 0);
-
+            transform.rotation = Quaternion.Euler(0, Random.Range(0f,360f), 0);
 
             turningTimer = gameObject.AddComponent<Timer>();
             reverseTimer = gameObject.AddComponent<Timer>();
             spawningTimer = gameObject.AddComponent<Timer>();
 
             childObjects = GetComponentsInChildren<Transform>();
+            rb = GetComponent<Rigidbody>();
 
             // Get colliders and store them for use later
             foreach (Transform child in childObjects)
@@ -121,8 +103,6 @@ namespace GDD3400.Labyrinth
                 }
             }
 
-
-
             // If we didn't manually set the level manager, find it
             if (_levelManager == null) _levelManager = FindAnyObjectByType<LevelManager>();
 
@@ -136,126 +116,7 @@ namespace GDD3400.Labyrinth
             Perception();
             DecisionMaking();
         }
-
         #endregion
-
-        //#region Path Following
-
-        //// Perform path following
-        //private void PathFollowing()
-        //{
-        //    // TODO: Implement path following
-
-        //    int closestNodeIndex = GetClosestNode();
-        //    int nextNodeIndex = closestNodeIndex + 1;
-
-        //    PathNode targetNode = null;
-
-        //    if (nextNodeIndex < path.Count)
-        //    {
-        //        targetNode = path[nextNodeIndex];
-        //    }
-        //    else
-        //    {
-        //        targetNode = path[closestNodeIndex];
-        //    }
-
-        //    floatingTarget = targetNode.transform.position;
-        //}
-
-        //// Public method to set the destination target
-        //public void SetDestinationTarget(Vector3 destination)
-        //{
-        //    // TODO: Implement destination target setting
-
-        //    destinationTarget = destination;
-
-
-        //    // If straight line distance to target is greater than a minimum then do pathfinding
-        //    if (Vector3.Distance(transform.position, destination) > minimumPathDistance)
-        //    {
-        //        PathNode startNode = _levelManager.GetNode(transform.position);
-        //        PathNode endNode = _levelManager.GetNode(destination);
-
-        //        if (startNode == null || endNode == null)
-        //        {
-        //            // We have a problem
-        //            print("Error with startNode or endNode");
-        //            return;
-        //        }
-
-        //        // Path to follow
-        //        path = Pathfinder.FindPath(startNode, endNode);
-
-        //        StartCoroutine(DrawPathDebugLines(path));
-        //    }
-        //    // Move directly to the destination
-        //    else
-        //    {
-        //        floatingTarget = destination;
-        //    }
-
-
-        //}
-
-        //// Get the closest node to the player's current position
-        //private int GetClosestNode()
-        //{
-        //    int closestNodeIndex = 0;
-        //    float closestDistance = float.MaxValue;
-
-        //    for (int i = 0; i < path.Count; i++)
-        //    {
-        //        float distance = Vector3.Distance(transform.position, path[i].transform.position);
-        //        if (distance < closestDistance)
-        //        {
-        //            closestDistance = distance;
-        //            closestNodeIndex = i;
-        //        }
-        //    }
-        //    return closestNodeIndex;
-        //}
-
-        ///// <summary>
-        ///// Move along node path
-        ///// </summary>
-        //private void FixedUpdate()
-        //{
-        //    if (!isActive) return;
-
-
-        //    Debug.DrawLine(this.transform.position, floatingTarget, Color.green);
-
-        //    // If we have a floating target and we are not close enough to it, move towards it
-        //    if (floatingTarget != Vector3.zero && Vector3.Distance(transform.position, floatingTarget) > stoppingDistance)
-        //    {
-        //        // Calculate the direction to the target position
-        //        Vector3 direction = (floatingTarget - transform.position).normalized;
-
-        //        direction.y = 0f;
-        //        // Calculate the movement vector
-        //        velocity = direction * maxSpeed;
-        //    }
-
-        //    // If we are close enough to the floating target, slow down
-        //    else
-        //    {
-        //        velocity *= .9f;
-        //    }
-
-        //    // Calculate the desired rotation towards the movement vector
-        //    if (velocity != Vector3.zero)
-        //    {
-        //        Quaternion targetRotation = Quaternion.LookRotation(velocity);
-
-        //        // Smoothly rotate towards the target rotation based on the turn rate
-        //        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnRate);
-        //    }
-
-        //    rb.linearVelocity = velocity;
-        //}
-
-        //#endregion
 
         #region Decision Making
         private void DecisionMaking()
@@ -263,11 +124,8 @@ namespace GDD3400.Labyrinth
             if (playerColliding)
             {
                 // Colliding with player
-
-
-
                 // Drop excited pheromone
-                if (!spawningTimer.IsRunning())
+                if (!spawningTimer.IsRunning() && rb.linearVelocity != Vector3.zero)
                 {
                     spawningTimer.Run(spawnCooldown);
                     SpawnPheromone(excitedColor, excitedLifeTime, excitedTag);
@@ -280,9 +138,8 @@ namespace GDD3400.Labyrinth
                 // Follow all other pheromones
                 if (playerPColliding)
                 {
-
                     // Drop intrigue pheromone
-                    if (!spawningTimer.IsRunning())
+                    if (!spawningTimer.IsRunning() && rb.linearVelocity != Vector3.zero)
                     {
                         spawningTimer.Run(spawnCooldown);
                         SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
@@ -298,6 +155,19 @@ namespace GDD3400.Labyrinth
                         else if (RightCollider.PlayerPColliding)
                         {
                             TurnLeftSharp();
+                        }
+                        else if(LeftCollider.PlayerPColliding && RightCollider.PlayerPColliding)
+                        {
+                            if(Random.Range(0f, 1f) > 0.5f)
+                            {
+                                Reverse();
+                                TurnRightSharp();
+                            }
+                            else
+                            {
+                                Reverse();
+                                TurnLeftSharp();
+                            }
                         }
                     }
                     else if (LeftCollider.PlayerPColliding)
@@ -367,7 +237,8 @@ namespace GDD3400.Labyrinth
                     // Head into a wall or corner
                     if (Random.Range(0f, 1f) > 0.5f)
                     {
-                        Reverse();
+                        if (!reverseTimer.IsRunning()) reverseTimer.Run(reverseTime);
+                        if (reverseTimer.IsRunning()) Reverse();
                         turningRight = true;
                         turningLeft = false;
                         if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
@@ -430,7 +301,6 @@ namespace GDD3400.Labyrinth
                     turningRight = true;
                     ForwardSlow();
                 }
-
             }
             else
             {

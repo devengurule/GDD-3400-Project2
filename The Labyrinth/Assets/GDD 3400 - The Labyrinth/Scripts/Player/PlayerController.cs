@@ -13,6 +13,13 @@ namespace  GDD3400.Labyrinth
         [SerializeField] private float moveSpeed = 10;
         [SerializeField] private float dashDistance = 2.5f;
         [SerializeField] private float dashCooldown = 1.5f;
+        private InputAction moveAction;
+        private InputAction dashAction;
+        private Vector3 inputVector;
+        private Vector3 moveVector;
+        private bool performDash;
+        private bool isDashing;
+        private Rigidbody rigidbody;
 
         [Header("Camera Settings")]
         [SerializeField] private Camera camera;
@@ -21,20 +28,24 @@ namespace  GDD3400.Labyrinth
         private float yaw;
         private float pitch;
 
-        private Rigidbody rigidbody;
-        private InputAction moveAction;
-        private InputAction dashAction;
-        private Vector3 inputVector;
-        private Vector3 moveVector;
-
-        private bool performDash;
-        private bool isDashing;
+        [Header("Pheromon Settings")]
+        [SerializeField] private GameObject pheromonePrefab;
+        [SerializeField] private Color playerColor;
+        [SerializeField] private float playerLifeTime;
+        [SerializeField] private float spawnCooldown;
+        [SerializeField] private Vector3 spawnOffset;
+        private string playerTag = "PlayerP";
+        private Timer spawningTimer;
+        private Timer hidingPheromoneTimer;
+        private bool isHidingPheromone;
+        [SerializeField] private float pheromoneHidingCooldown;
 
         private void Awake()
         {
             // Assign member variables
             rigidbody = GetComponent<Rigidbody>();
-
+            spawningTimer = gameObject.AddComponent<Timer>();
+            hidingPheromoneTimer = gameObject.AddComponent<Timer>();
             moveAction = InputSystem.actions.FindAction("Move");
             dashAction = InputSystem.actions.FindAction("Dash");
             Cursor.lockState = CursorLockMode.Locked;
@@ -43,6 +54,13 @@ namespace  GDD3400.Labyrinth
 
         private void Update()
         {
+            // Drop excited pheromone
+            if (!spawningTimer.IsRunning() && rigidbody.linearVelocity != Vector3.zero && !isHidingPheromone)
+            {
+                spawningTimer.Run(spawnCooldown);
+                SpawnPheromone(playerColor, playerLifeTime, playerTag);
+            }
+
             yaw += Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime * 100;
             pitch -= Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime * 100;
             pitch = Mathf.Clamp(pitch, -90, 90);
@@ -90,6 +108,18 @@ namespace  GDD3400.Labyrinth
         {
             isDashing = false;
             rigidbody.linearVelocity = moveVector * moveSpeed;
+        }
+
+        private void SpawnPheromone(Color color, float lifeTime, string tag)
+        {
+            GameObject pheromone = Instantiate(pheromonePrefab, transform.position + spawnOffset, Quaternion.identity);
+            pheromone.GetComponent<Pheomone>().Initialize(color, lifeTime, tag);
+        }
+
+        private void PheromoneHide()
+        {
+            isHidingPheromone = true;
+            hidingPheromoneTimer.Run(pheromoneHidingCooldown);
         }
     }
 }

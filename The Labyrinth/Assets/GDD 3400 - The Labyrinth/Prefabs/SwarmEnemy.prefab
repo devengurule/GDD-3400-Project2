@@ -243,7 +243,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.3
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8765299626628897959
 MonoBehaviour:
@@ -836,7 +836,7 @@ MonoBehaviour:
   sharpMultiplier: 40
   swayAmount: 0.5
   swayTime: 2
-  turningTime: 0.2
+  turningTime: 0.5
   reverseTime: 1
   maxSpeed: 3
   acceleration: 0.1

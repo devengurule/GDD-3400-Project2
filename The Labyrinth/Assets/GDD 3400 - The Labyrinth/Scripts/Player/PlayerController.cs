@@ -37,15 +37,24 @@ namespace  GDD3400.Labyrinth
         private string playerTag = "PlayerP";
         private Timer spawningTimer;
         private Timer hidingPheromoneTimer;
-        private bool isHidingPheromone;
+        private Timer hidingPheromoneCooldownTimer;
+        [SerializeField] private float hidingPheromoneCooldown;
+        private bool isHidingPheromone = false;
+        private bool canHidePheromone = true;
         [SerializeField] private float pheromoneHidingCooldown;
+        [SerializeField] private float hp;
+        private bool invincible;
+        private Timer invincibleTimer;
+        [SerializeField] private float invincibleTime;
 
         private void Awake()
         {
+            invincibleTimer = gameObject.AddComponent<Timer>();
             // Assign member variables
             rigidbody = GetComponent<Rigidbody>();
             spawningTimer = gameObject.AddComponent<Timer>();
             hidingPheromoneTimer = gameObject.AddComponent<Timer>();
+            hidingPheromoneCooldownTimer = gameObject.AddComponent<Timer>();
             moveAction = InputSystem.actions.FindAction("Move");
             dashAction = InputSystem.actions.FindAction("Dash");
             Cursor.lockState = CursorLockMode.Locked;
@@ -54,6 +63,10 @@ namespace  GDD3400.Labyrinth
 
         private void Update()
         {
+            if (!invincibleTimer.IsRunning()) invincible = false;
+
+            if (hp <= 0) Debug.Log("Your Dead");
+
             // Drop excited pheromone
             if (!spawningTimer.IsRunning() && rigidbody.linearVelocity != Vector3.zero && !isHidingPheromone)
             {
@@ -76,6 +89,19 @@ namespace  GDD3400.Labyrinth
             moveVector.y = 0f;
             moveVector.Normalize();
 
+            if(!hidingPheromoneTimer.IsRunning()) isHidingPheromone = false;
+
+            if(!hidingPheromoneCooldownTimer.IsRunning())
+            {
+                canHidePheromone = true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.E) && canHidePheromone)
+            {
+                canHidePheromone = false;
+                hidingPheromoneCooldownTimer.Run(hidingPheromoneCooldown);
+                PheromoneHide();
+            }
 
             // If the dash is available and pressed this frame, perform the dash
             if (!isDashing && dashAction.WasPressedThisFrame()) PerformDash();
@@ -120,6 +146,17 @@ namespace  GDD3400.Labyrinth
         {
             isHidingPheromone = true;
             hidingPheromoneTimer.Run(pheromoneHidingCooldown);
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if(collision.gameObject.tag == "Enemy" && !invincible)
+            {
+                hp--;
+                Debug.Log("HP: " + hp);
+                invincible = true;
+                invincibleTimer.Run(invincibleTime);
+            }
         }
     }
 }

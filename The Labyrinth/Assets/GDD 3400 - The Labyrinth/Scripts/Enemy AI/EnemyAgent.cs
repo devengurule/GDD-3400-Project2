@@ -138,12 +138,12 @@ namespace GDD3400.Labyrinth
                 // Follow all other pheromones
                 if (playerPColliding)
                 {
-                    // Drop intrigue pheromone
-                    if (!spawningTimer.IsRunning() && rb.linearVelocity != Vector3.zero)
-                    {
-                        spawningTimer.Run(spawnCooldown);
-                        SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
-                    }
+                    //// Drop intrigue pheromone
+                    //if (!spawningTimer.IsRunning() && rb.linearVelocity != Vector3.zero)
+                    //{
+                    //    spawningTimer.Run(spawnCooldown);
+                    //    SpawnPheromone(intrigueColor, intrigueLifeTime, intrigueTag);
+                    //}
 
                     if (FrontCollider.PlayerPColliding)
                     {
@@ -235,19 +235,18 @@ namespace GDD3400.Labyrinth
                 if (FrontCollider.WallColliding && LeftCollider.WallColliding && RightCollider.WallColliding || reverseTimer.IsRunning())
                 {
                     // Head into a wall or corner
+                    if (!reverseTimer.IsRunning()) reverseTimer.Run(reverseTime);
+                    else ReverseSlow();
                     if (Random.Range(0f, 1f) > 0.5f)
                     {
-                        if (!reverseTimer.IsRunning()) reverseTimer.Run(reverseTime);
-                        if (reverseTimer.IsRunning()) Reverse();
-                        turningRight = true;
-                        turningLeft = false;
+                        turningLeft = true;
+                        turningRight = false;
                         if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                     }
                     else
                     {
-                        Reverse();
-                        turningRight = true;
                         turningLeft = false;
+                        turningRight = true;
                         if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                     }
                 }
@@ -255,8 +254,8 @@ namespace GDD3400.Labyrinth
                 {
                     // Hitting front and left
                     Reverse();
-                    turningRight = true;
-                    turningLeft = false;
+                    turningRight = false;
+                    turningLeft = true;
                     if(!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                 }
                 else if(FrontCollider.WallColliding && RightCollider.WallColliding)
@@ -271,18 +270,18 @@ namespace GDD3400.Labyrinth
                 {
                     // Only hitting front
                     if (!reverseTimer.IsRunning()) reverseTimer.Run(reverseTime);
-                    if (reverseTimer.IsRunning()) ReverseSlow();
+                    else ReverseSlow();
                     if (Random.Range(0f, 1f) > 0.5f)
                     {
                         turningLeft = true;
                         turningRight = false;
-                        TurnRight();
+                        if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                     }
                     else
                     {
                         turningLeft = false;
                         turningRight = true;
-                        TurnLeft();
+                        if (!turningTimer.IsRunning()) turningTimer.Run(turningTime);
                     }
                 }
                 else if (LeftCollider.WallColliding || turningLeft)
@@ -441,12 +440,12 @@ namespace GDD3400.Labyrinth
 
         private void TurnLeft()
         {
-            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - currentYAngle, 0);
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y - currentYAngle * 1.5f, 0);
         }
 
         private void TurnRight()
         {
-            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle, 0);
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y + currentYAngle * 1.5f, 0);
         }
 
         private void TurnLeftSharp()

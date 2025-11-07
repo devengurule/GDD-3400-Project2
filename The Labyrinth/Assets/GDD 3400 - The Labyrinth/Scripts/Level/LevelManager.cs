@@ -43,7 +43,7 @@ namespace GDD3400.Labyrinth
                 tile.CreateNodeMap(_nodeMap);
             }
 
-            Debug.Log("Level Contains: " + _nodeMap.Count + " nodes");
+            //Debug.Log("Level Contains: " + _nodeMap.Count + " nodes");
 
             // Once we know where all the nodes are, we can generate the connections between the nodes
             foreach (var node in _nodeMap)
